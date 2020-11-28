@@ -1,0 +1,3 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+00 01  * * *   fewtarius   ~/repositories/fewtarius/351ELEC-nightly/nightly >/~/repositories/fewtarius/351ELEC-nightly/nightly.log
