@@ -1,0 +1,30 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2020-present Fewtarius
+
+# ~/.build_settings contents
+# SHARED      - Google Drive Shared URL
+# UPLOAD_PATH - Google Drive Upload Path
+# BOTNAME     - Discord "Bot" name..
+# TOKEN       - Discord Webhook Token
+# WD          - 351ELEC Build Root
+
+. ~/.build_settings || exit 1
+
+cd ${WD}
+(mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
+COMMIT=$(git log | head -n 1 | awk '{print $2}')
+DATE=$(date +%Y%m%d)
+YESTERDAY=$(date --date "yesterday" +%Y%m%d)
+make clean
+make world
+if [ $? == 0 ]
+then
+  . $(find build.351ELEC-RG351P.arm* -name os-release)
+  if [ -d "${UPLOAD_PATH}/${YESTERDAY}" ] && [ -n "${UPLOAD_PATH}" ]
+  then
+    rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
+  fi
+  rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${UPLOAD_PATH}/${DATE}
+  curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "Nightly build '${NAME}'-'$DATE' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+fi
