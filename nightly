@@ -20,7 +20,7 @@ YESTERDAY=$(date --date "yesterday" +%Y%m%d)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   rm .notified
-#  make clean
+  make clean
   make world
   if [ $? == 0 ]
   then
