@@ -13,18 +13,18 @@
 
 cd ${WD}
 (mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
-COMMIT=$(git log | head -n 1 | awk '{print $2}')
+COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
 LAST_BUILD=$(cat .lastbuild)
 DATE=$(date +%Y%m%d)
 YESTERDAY=$(date --date "yesterday" +%Y%m%d)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   rm .notified
-  make clean
+#  make clean
   make world
   if [ $? == 0 ]
   then
-    . $(find build.351ELEC-RG351P.arm* -name os-release)
+    . $(find build.351ELEC-RG351P.aar* -name os-release)
     if [ -d "${UPLOAD_PATH}/${YESTERDAY}" ] && [ -n "${UPLOAD_PATH}" ]
     then
       rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
