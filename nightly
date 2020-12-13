@@ -22,6 +22,7 @@ then
   rm .notified
   make clean
   make world
+  echo ${COMMIT} >.lastbuild
   if [ $? == 0 ]
   then
     . $(find build.351ELEC-RG351P.aar* -name os-release)
