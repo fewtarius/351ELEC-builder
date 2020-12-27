@@ -6,17 +6,32 @@
 # SHARED      - Google Drive Shared URL
 # UPLOAD_PATH - Google Drive Upload Path
 # BOTNAME     - Discord "Bot" name..
+# MESSAGE     - Discord message prefix.
 # TOKEN       - Discord Webhook Token
 # WD          - 351ELEC Build Root
 
-. ~/.build_settings || exit 1
-
 cd ${WD}
-(mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
+
 COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
-LAST_BUILD=$(cat .lastbuild)
-DATE=$(date +%Y%m%d)
 YESTERDAY=$(date --date "yesterday" +%Y%m%d)
+DATE=$(date +%Y%m%d)
+LAST_BUILD=$(cat .lastbuild)
+
+if [ -z "${1}" ]
+then
+  source ~/.build_settings || exit 1
+  TAG=${DATE}
+else
+  source ${1}
+  if [ ! $? == 0 ]
+  then
+    echo "Could not source ${1}"
+    exit 1
+  fi
+  TAG=$(cat packages/351elec/config/EE_VERSION)
+fi
+
+(mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   make clean
@@ -29,7 +44,7 @@ then
       rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
     fi
     rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${UPLOAD_PATH}/${DATE}
-    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "Nightly build '${NAME}'-'$DATE' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "${MESSAGE} '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
 fi

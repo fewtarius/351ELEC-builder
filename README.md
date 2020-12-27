@@ -1,2 +1,2 @@
-# 351ELEC-nightly
-A simple script to generate a nightly build and post on discord.
+# 351ELEC-builder
+A simple script to generate a build and post on discord.
