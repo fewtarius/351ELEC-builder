@@ -8,14 +8,14 @@ To integrate with Discord, create a webhook integration in the destination chann
 
 ## Usage
 Create ~/.build_settings with the following content:
-
+```
 SHARED      - Google Drive Shared URL
 UPLOAD_PATH - Google Drive Upload Path
 BOTNAME     - Discord "Bot" name..
 MESSAGE     - Discord message prefix.
 TOKEN       - Discord Webhook Token
 WD          - 351ELEC Build Root
-
+```
 Add 351elec-builder to cron.d or crontab.
 
 To specify an alternate configuration, pass the new configuration to be sourced as the only argument.
