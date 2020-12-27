@@ -15,11 +15,11 @@ cd ${WD}
 COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
 YESTERDAY=$(date --date "yesterday" +%Y%m%d)
 DATE=$(date +%Y%m%d)
-LAST_BUILD=$(cat .lastbuild)
 
 if [ -z "${1}" ]
 then
   source ~/.build_settings || exit 1
+  cd ${WD}
   TAG=${DATE}
 else
   source ${1}
@@ -28,10 +28,12 @@ else
     echo "Could not source ${1}"
     exit 1
   fi
+  cd ${WD}
   TAG=$(cat packages/351elec/config/EE_VERSION)
 fi
 
 (mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
+LAST_BUILD=$(cat .lastbuild)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   make clean
