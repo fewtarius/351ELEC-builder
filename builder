@@ -10,16 +10,16 @@
 # TOKEN       - Discord Webhook Token
 # WD          - 351ELEC Build Root
 
-cd ${WD}
-
-YESTERDAY=$(date --date "yesterday" +%Y%m%d)
-DATE=$(date +%Y%m%d)
+BUILD_SETTINGS="${HOME}/.build_settings"
 
 if [ -z "${1}" ]
 then
-  source ~/.build_settings || exit 1
-  cd ${WD}
-  TAG=${DATE}
+  source ${BUILD_SETTINGS}
+  if [ ! $? == 0 ]
+  then
+    echo "Could not source ${BUILD_SETTINGS}"
+    exit 1
+  fi
 else
   source ${1}
   if [ ! $? == 0 ]
@@ -27,9 +27,9 @@ else
     echo "Could not source ${1}"
     exit 1
   fi
-  cd ${WD}
-  TAG=$(cat packages/351elec/config/EE_VERSION)
 fi
+
+cd ${WD}
 
 (mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
 LAST_BUILD=$(cat .lastbuild)
@@ -38,15 +38,23 @@ if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   make clean
   make world
+  YESTERDAY=$(date --date "yesterday" +%Y%m%d)
+  DATE=$(date +%Y%m%d)
   if [ $? == 0 ]
   then
-    . $(find build.351ELEC-RG351P.aar* -name os-release)
+    . $(find build.351ELEC-RG351P.aar*/image/system -name os-release)
     if [ -d "${UPLOAD_PATH}/${YESTERDAY}" ] && [ -n "${UPLOAD_PATH}" ]
     then
       rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
     fi
+    if [ -z "${1}" ]
+    then
+      TAG=${DATE}
+    else
+      TAG=${VERSION}
+    fi
     rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${UPLOAD_PATH}/${DATE}
-    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "${MESSAGE} '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"${MESSAGE}"' '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
 fi
