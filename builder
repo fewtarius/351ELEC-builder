@@ -12,7 +12,6 @@
 
 cd ${WD}
 
-COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
 YESTERDAY=$(date --date "yesterday" +%Y%m%d)
 DATE=$(date +%Y%m%d)
 
@@ -34,6 +33,7 @@ fi
 
 (mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
 LAST_BUILD=$(cat .lastbuild)
+COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   make clean
@@ -46,7 +46,7 @@ then
       rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
     fi
     rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${UPLOAD_PATH}/${DATE}
-    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "${MESSAGE} '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'${MESSAGE}' '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
 fi
