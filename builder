@@ -46,7 +46,7 @@ then
       rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
     fi
     rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${UPLOAD_PATH}/${DATE}
-    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'${MESSAGE}' '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "${MESSAGE} '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
 fi
