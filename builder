@@ -36,10 +36,10 @@ LAST_BUILD=$(cat .lastbuild)
 COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
-  make clean
-  make world
   YESTERDAY=$(date --date "yesterday" +%Y%m%d)
   DATE=$(date +%Y%m%d)
+  make clean
+  make world
   if [ $? == 0 ]
   then
     . $(find build.351ELEC-RG351P.aar*/image/system -name os-release)
