@@ -3,8 +3,9 @@
 # Copyright (C) 2020-present Fewtarius
 
 # ~/.build_settings contents
-# SHARED      - Google Drive Shared URL
-# UPLOAD_PATH - Google Drive Upload Path
+# SHARED      - Shared URL
+# UPLOAD_PATH - Upload Path
+# USER        - User at Host
 # BOTNAME     - Discord "Bot" name..
 # MESSAGE     - Discord message prefix.
 # TOKEN       - Discord Webhook Token
@@ -31,9 +32,8 @@ fi
 
 cd ${WD}
 
-(mount | grep [g]drivefs) || google-drive-ocamlfuse /mnt/gdrivefs
 LAST_BUILD=$(cat .lastbuild)
-COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -10)
+COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -7)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   YESTERDAY=$(date --date "yesterday" +%Y%m%d)
@@ -45,7 +45,7 @@ then
     . $(find build.351ELEC-RG351P.aar*/image/system -name os-release)
     if [ -d "${UPLOAD_PATH}/${YESTERDAY}" ] && [ -n "${UPLOAD_PATH}" ]
     then
-      rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
+      ssh ${USER} rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
     fi
     if [ -z "${1}" ]
     then
@@ -53,7 +53,7 @@ then
     else
       TAG=${VERSION}
     fi
-    rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${UPLOAD_PATH}/${DATE}
+    rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${USER}:${UPLOAD_PATH}/${DATE}
     curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"${MESSAGE}"' '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
