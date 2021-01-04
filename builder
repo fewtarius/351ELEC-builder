@@ -5,7 +5,7 @@
 # ~/.build_settings contents
 # SHARED      - Shared URL
 # UPLOAD_PATH - Upload Path
-# USER        - User at Host
+# SERVER      - User at Host
 # BOTNAME     - Discord "Bot" name..
 # MESSAGE     - Discord message prefix.
 # TOKEN       - Discord Webhook Token
@@ -45,7 +45,7 @@ then
     . $(find build.351ELEC-RG351P.aar*/image/system -name os-release)
     if [ -d "${UPLOAD_PATH}/${YESTERDAY}" ] && [ -n "${UPLOAD_PATH}" ]
     then
-      ssh ${USER} rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
+      ssh ${SERVER} rm -rf ${UPLOAD_PATH}/${YESTERDAY} 2>/dev/null
     fi
     if [ -z "${1}" ]
     then
