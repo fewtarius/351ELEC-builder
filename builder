@@ -38,7 +38,8 @@ if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   YESTERDAY=$(date --date "yesterday" +%Y%m%d)
   DATE=$(date +%Y%m%d)
-  make clean
+  make clean || exit 1
+  git pull || exit 1
   make world
   if [ $? == 0 ]
   then
@@ -53,7 +54,11 @@ then
     else
       TAG=${VERSION}
     fi
-    rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${USER}:${UPLOAD_PATH}/${DATE}
+    rsync -trluhv --delete --inplace --progress --stats ${WD}/release/* ${SERVER}:${UPLOAD_PATH}/${DATE}
+    if [ $? == 0 ]
+    then
+      make clean
+    fi
     curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"${MESSAGE}"' '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
