@@ -32,14 +32,14 @@ fi
 
 cd ${WD}
 
+git pull || exit 1
 LAST_BUILD=$(cat .lastbuild)
 COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -7)
 if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   YESTERDAY=$(date --date "yesterday" +%Y%m%d)
   DATE=$(date +%Y%m%d)
-  make clean || exit 1
-  git pull || exit 1
+#  make clean || exit 1
   make world
   if [ $? == 0 ]
   then
