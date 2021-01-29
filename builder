@@ -39,7 +39,7 @@ if [ ! "${COMMIT}" == "${LAST_BUILD}" ]
 then
   YESTERDAY=$(date --date "yesterday" +%Y%m%d)
   DATE=$(date +%Y%m%d)
-#  make clean || exit 1
+  make clean || exit 1
   make world
   if [ $? == 0 ]
   then
