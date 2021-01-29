@@ -1,21 +1,21 @@
-# 351ELEC-builder
-A simple script to generate a build and post on discord.
+# builder
+A simple script to generate a build from a repository checkout and post a notice on discord when the build is available in an update channel.
 
 ## Requirements
-The script expects google-drive-ocamlfuse to be installed and configured, and your google drive mountable on /mnt/gdrivefs.  It's strongly recommended to enable delete_forever_in_trash_folder in your google-drive-ocamlfuse configuration.
+All of the requirements to build 351ELEC should be satisfied before using this script.  The script expects to rsync the binaries to a web host, be sure that there is an ssh public key on the target and ssh-agent is caching the passphrase if your key is configured with one.
 
 To integrate with Discord, create a webhook integration in the destination channel and configure the URL as "TOKEN" in ~/.build_settings.
 
 ## Usage
-Create ~/.build_settings with the following content:
+Create ~/.build_settings with the following content.  Use KEY=value format.
 ```
-SHARED      - Google Drive Shared URL
-UPLOAD_PATH - Google Drive Upload Path
+SHARED      - Shared URL
+UPLOAD_PATH - Upload Path
+SERVER      - User at Host
 BOTNAME     - Discord "Bot" name..
 MESSAGE     - Discord message prefix.
 TOKEN       - Discord Webhook Token
-WD          - 351ELEC Build Root
-```
-Add 351elec-builder to cron.d or crontab.
+WD          - 351ELEC Build Root```
+Add builder to cron.d or crontab.
 
 To specify an alternate configuration, pass the new configuration to be sourced as the only argument.
