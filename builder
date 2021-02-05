@@ -7,7 +7,7 @@
 # UPLOAD_PATH - Upload Path
 # SERVER      - User at Host
 # BOTNAME     - Discord "Bot" name..
-# MESSAGE     - Discord message prefix.
+# BRANCH      - Git branch to build from
 # TOKEN       - Discord Webhook Token
 # WD          - 351ELEC Build Root
 
@@ -32,6 +32,8 @@ fi
 
 cd ${WD}
 
+git fetch
+git checkout ${BRANCH} || exit 1
 git pull || exit 1
 LAST_BUILD=$(cat .lastbuild)
 COMMIT=$(git log | head -n 1 | awk '{print $2}' | cut -c -7)
@@ -59,7 +61,7 @@ then
     then
       make clean
     fi
-    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"${MESSAGE}"' '${NAME}'-'$TAG' ('$COMMIT') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"Build"' '${NAME}'-'${TAG}' ('${BRANCH}':'${COMMIT}') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
     echo ${COMMIT} >.lastbuild
   fi
 fi
