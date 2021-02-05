@@ -13,7 +13,7 @@ SHARED      - Shared URL
 UPLOAD_PATH - Upload Path
 SERVER      - User at Host
 BOTNAME     - Discord "Bot" name..
-MESSAGE     - Discord message prefix.
+BRANCH      - Git branch to checkout for the build
 TOKEN       - Discord Webhook Token
 WD          - 351ELEC Build Root```
 Add builder to cron.d or crontab.
