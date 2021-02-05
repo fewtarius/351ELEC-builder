@@ -60,8 +60,8 @@ then
     if [ $? == 0 ]
     then
       make clean
+      curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"Build"' '${NAME}'-'${BRANCH}'-'${TAG}' ('${COMMIT}') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
+      echo ${COMMIT} >.lastbuild
     fi
-    curl -X POST -H "Content-Type: application/json" -d '{"username": "'${BOTNAME}'", "content": "'"Build"' '${NAME}'-'${TAG}' ('${BRANCH}':'${COMMIT}') is now available.\n<'${SHARED}'>"}' "${TOKEN}"
-    echo ${COMMIT} >.lastbuild
   fi
 fi
