@@ -11,6 +11,7 @@ A tool to build 351ELEC and replicate the distribution to a web farm.
 Arguments:
   -b Branch to check out for building.
   -c Clean the build root environment.
+  -f Force build.
   -h This help message.
   -l Perform a git pull before building.
   -n The friendly bot name for Discord.
@@ -25,7 +26,7 @@ EOF
 }
 
 ### Process arguments
-while getopts "b:n:p:r:s:t:u:chlx" opt
+while getopts "b:n:p:r:s:t:u:cfhlx" opt
 do
   case $opt in
   b )
@@ -35,6 +36,9 @@ do
   c )
     # Git clean
     CLEAN=true
+  ;;
+  f )
+    FORCE=true
   ;;
   h )
     show_help
@@ -218,7 +222,7 @@ fi
 BUILDCOMMIT=$(last_commit)
 PREVBUILD=$(cat ${WD}/.prevbuild 2>/dev/null)
 
-if [ ! "${BUILDCOMMIT}" == "${PREVBUILD}" ]
+if [ ! "${BUILDCOMMIT}" == "${PREVBUILD}" ] && [ ! "${FORCE}" == true ]
 then
   COUNT=0
   while [ -f "${WD}/.run" ]
