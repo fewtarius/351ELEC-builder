@@ -124,12 +124,10 @@ function error() {
 }
 
 function notify_discord() {
-  BOTNAME=${1}
-  MESSAGE=${2}
-  TOKEN=${3}
+  MESSAGE=${1}
   curl -X POST \
     -H "Content-Type: application/json" \
-    --data '{"username": "'"${BOTNAME}"'","content": "'"${MESSAGE}"'"}' \
+    --data-binary "@/tmp/message.txt" \
     "${TOKEN}"
 }
 
@@ -263,7 +261,7 @@ PID=$$
 COMMIT=${BUILDCOMMIT}
 EOF
   log "Building the distribution."
-  make world &>> ${LOG}
+#  make world &>> ${LOG}
   if [ ! $? == 0 ]
   then
     error "Unable to build world, aborting."
@@ -275,14 +273,14 @@ EOF
   if [ ! "${NOSYNC}" == true ]
   then  
     log "Running sync command: ${SYNC}"
-    ${SYNC} &>> ${LOG}
+#    ${SYNC} &>> ${LOG}
     if [ ! $? == 0 ]
     then
       error "Unable to complete sync, aborting."
     else
       log "Sync completed."
     fi
-  
+
     TMPLOG=$(git log --oneline ${PREVBUILD}..${BUILDCOMMIT} >/tmp/gitlog)
     while IFS= read -r line
     do
@@ -295,11 +293,15 @@ EOF
     MESSAGE="$(echo ${MESSAGE} | sed 's#@VERSION@#'${VERSION}'#g')"
     MESSAGE="$(echo ${MESSAGE} | sed 's#@BUILDCOMMIT@#'${BUILDCOMMIT:0:7}'#g')"
     MESSAGE="$(echo ${MESSAGE} | sed 's#@BRANCH@#'${BRANCH}'#g')"
-    MESSAGE="$(echo ${MESSAGE} | sed 's#@CHANGELOG@#'${CHANGELOG}'#g')"
     MESSAGE="$(echo ${MESSAGE} | sed 's#@URL@#'${URL}'#g')"
 
+
+    cat <<EOF >/tmp/message.txt
+{"username": "${BOTNAME}","content": "${MESSAGE}\n\nCommits since last build:\n\n\`\`\`${CHANGELOG}\`\`\`"}
+EOF
+
     log "Notifying discord."
-    notify_discord "${BOTNAME}" "${MESSAGE}" "${TOKEN}"
+    notify_discord "${MESSAGE}" "${TOKEN}"
   fi
 fi
 
