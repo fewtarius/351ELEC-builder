@@ -26,7 +26,7 @@ EOF
 }
 
 ### Process arguments
-while getopts "b:n:p:r:s:t:u:cfhlx" opt
+while getopts "b:m:n:p:r:s:t:u:cefhlx" opt
 do
   case $opt in
   b )
@@ -37,6 +37,10 @@ do
     # Git clean
     CLEAN=true
   ;;
+  e )
+    # Git reset
+    RESET=true
+  ;;
   f )
     FORCE=true
   ;;
@@ -46,6 +50,10 @@ do
   l )
     # Git pull
     PULL=true
+  ;;
+  m )
+    # Discord message
+    MESSAGE="${OPTARG}"
   ;;
   n )
     # "bot" name
@@ -206,16 +214,28 @@ then
   clean
 fi
 
-### Reset and pull the latest commits
+### Do a git reset to undo any automated/manual changes
+if [ "${RESET}" == true ]
+then
+  log "Performing a repository hard reset"
+  git reset --hard  &>> ${LOG}
+  if [ ! $? == "0" ]
+  then
+    error "Unable to reset the repository, aborting."
+  else
+    log "Reset successfull."
+  fi
+fi
+
+### Pull the latest commits
 if [ "${PULL}" == true ]
 then
   log "Pulling the latest commits from github."
-  git reset --hard  &>> ${LOG}
   git pull  &>> ${LOG}
   if [ ! $? == "0" ]
   then
     error "Unable to pull from source system, aborting."
- else
+  else
     log "Pull successfull."
   fi
 fi
@@ -223,7 +243,7 @@ fi
 BUILDCOMMIT=$(last_commit)
 PREVBUILD=$(cat ${WD}/.prevbuild 2>/dev/null)
 
-if [ ! "${BUILDCOMMIT}" == "${PREVBUILD}" ] && [ ! "${FORCE}" == true ]
+if [ ! "${BUILDCOMMIT}" == "${PREVBUILD}" ] || [ "${FORCE}" == true ]
 then
   COUNT=0
   while [ -f "${WD}/.run" ]
@@ -249,8 +269,8 @@ EOF
     error "Unable to build world, aborting."
   fi
 
-  ### This should be corrected at some point..
-  source build*aarch64*/image/system/etc/os-release
+  source distributions/351ELEC/version
+  VERSION="${LIBREELEC_VERSION}"
 
   if [ ! "${NOSYNC}" == true ]
   then  
@@ -271,7 +291,12 @@ EOF
 
     rm -f /tmp/gitlog
 
-    MESSAGE="Build v${VERSION} (${BUILDCOMMIT:0:7}, ${BRANCH} branch) is now available for installation.\n\nChanges since the last build:\n\n${CHANGELOG}\nDownload from ${URL} or update using the “Nightly” channel on your RG351P/M"
+    ### Replace the variables in the discord notification before sending.
+    MESSAGE="$(echo ${MESSAGE} | sed 's#@VERSION@#'${VERSION}'#g')"
+    MESSAGE="$(echo ${MESSAGE} | sed 's#@BUILDCOMMIT@#'${BUILDCOMMIT:0:7}'#g')"
+    MESSAGE="$(echo ${MESSAGE} | sed 's#@BRANCH@#'${BRANCH}'#g')"
+    MESSAGE="$(echo ${MESSAGE} | sed 's#@CHANGELOG@#'${CHANGELOG}'#g')"
+    MESSAGE="$(echo ${MESSAGE} | sed 's#@URL@#'${URL}'#g')"
 
     log "Notifying discord."
     notify_discord "${BOTNAME}" "${MESSAGE}" "${TOKEN}"

@@ -3,4 +3,5 @@ nightly.log
 .lastbuild
 nightly
 weekly
+trigger
 logs/
