@@ -261,7 +261,7 @@ PID=$$
 COMMIT=${BUILDCOMMIT}
 EOF
   log "Building the distribution."
-#  make world &>> ${LOG}
+  make world &>> ${LOG}
   if [ ! $? == 0 ]
   then
     error "Unable to build world, aborting."
@@ -273,7 +273,7 @@ EOF
   if [ ! "${NOSYNC}" == true ]
   then  
     log "Running sync command: ${SYNC}"
-#    ${SYNC} &>> ${LOG}
+    ${SYNC} &>> ${LOG}
     if [ ! $? == 0 ]
     then
       error "Unable to complete sync, aborting."
