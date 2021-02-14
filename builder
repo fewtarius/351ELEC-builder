@@ -119,9 +119,10 @@ function notify_discord() {
   BOTNAME=${1}
   MESSAGE=${2}
   TOKEN=${3}
-  PAYLOAD="{\"username\": \"${BOTNAME}\",\"content\": \"${MESSAGE}\" }"
-  log "Sending: curl -X POST -H "Content-Type: application/json" -d ${PAYLOAD} ${TOKEN}"
-  curl -X POST -H "Content-Type: application/json" -d "${PAYLOAD}" "${TOKEN}" &>> ${LOG}
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    --data '{"username": "'"${BOTNAME}"'","content": "'"${MESSAGE}"'"}' \
+    "${TOKEN}"
 }
 
 function clean() {
@@ -262,7 +263,15 @@ EOF
       log "Sync completed."
     fi
   
-    MESSAGE="Build v${VERSION} (${BUILDCOMMIT:0:7}, ${BRANCH} branch) is now available at the URL below.\n\n${URL}\n\nChange Log:\n$(git log --oneline ${PREVBUILD}..${BUILDCOMMIT})"
+    TMPLOG=$(git log --oneline ${PREVBUILD}..${BUILDCOMMIT} >/tmp/gitlog)
+    while IFS= read -r line
+    do
+      CHANGELOG="${CHANGELOG}${line}\n"
+    done </tmp/gitlog
+
+    rm -f /tmp/gitlog
+
+    MESSAGE="Build v${VERSION} (${BUILDCOMMIT:0:7}, ${BRANCH} branch) is now available for installation.\n\nChanges since the last build:\n\n${CHANGELOG}\nDownload from ${URL} or update using the “Nightly” channel on your RG351P/M"
 
     log "Notifying discord."
     notify_discord "${BOTNAME}" "${MESSAGE}" "${TOKEN}"
