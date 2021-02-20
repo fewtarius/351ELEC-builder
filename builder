@@ -128,7 +128,7 @@ function notify_discord() {
   curl -X POST \
     -H "Content-Type: application/json" \
     --data-binary "@/tmp/message.txt" \
-    "${TOKEN}"
+    "${TOKEN}" &>> ${LOG}
 }
 
 function clean() {
@@ -295,7 +295,6 @@ EOF
     MESSAGE="$(echo ${MESSAGE} | sed 's#@BRANCH@#'${BRANCH}'#g')"
     MESSAGE="$(echo ${MESSAGE} | sed 's#@URL@#'${URL}'#g')"
 
-
     cat <<EOF >/tmp/message.txt
 {"username": "${BOTNAME}","content": "${MESSAGE}\n\nCommits since last build:\n\n\`\`\`${CHANGELOG}\`\`\`"}
 EOF
@@ -305,6 +304,9 @@ EOF
   fi
 fi
 
+### Escape characters that invalidate the json
+sed -i 's#"#\\"#g' /tmp/message.txt
+ 
 echo -n "${BUILDCOMMIT}" >${WD}/.prevbuild
 rm -f "${WD}/.run"
 
