@@ -295,6 +295,9 @@ EOF
     MESSAGE="$(echo ${MESSAGE} | sed 's#@BRANCH@#'${BRANCH}'#g')"
     MESSAGE="$(echo ${MESSAGE} | sed 's#@URL@#'${URL}'#g')"
 
+    ### Escape characters that invalidate the json
+    MESSAGE="$(echo ${MESSAGE} | sed 's#"#\\"#g')"
+
     cat <<EOF >/tmp/message.txt
 {"username": "${BOTNAME}","content": "${MESSAGE}\n\nCommits since last build:\n\n\`\`\`${CHANGELOG}\`\`\`"}
 EOF
@@ -304,9 +307,6 @@ EOF
   fi
 fi
 
-### Escape characters that invalidate the json
-sed -i 's#"#\\"#g' /tmp/message.txt
- 
 echo -n "${BUILDCOMMIT}" >${WD}/.prevbuild
 rm -f "${WD}/.run"
 
