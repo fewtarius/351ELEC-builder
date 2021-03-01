@@ -221,7 +221,7 @@ then
   then
     error "Unable to reset the repository, aborting."
   else
-    log "Reset successfull."
+    log "Reset successful."
   fi
 fi
 
@@ -234,7 +234,7 @@ then
   then
     error "Unable to pull from source system, aborting."
   else
-    log "Pull successfull."
+    log "Pull successful."
   fi
 fi
 
